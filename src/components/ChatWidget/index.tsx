@@ -16,16 +16,27 @@ export const ChatWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedMessages = storage.load();
-    if (savedMessages.length > 0) {
-      setState(prev => ({ ...prev, messages: savedMessages }));
-    }
+    const loadMessages = async () => {
+      const savedMessages = await storage.load();
+      
+      if (savedMessages.length > 0) {
+        setState(prev => ({ ...prev, messages: savedMessages }));
+      }
+    };
+    loadMessages();
   }, []);
 
   useEffect(() => {
-    if (state.messages.length > 0) {
-      storage.save(state.messages);
-    }
+    const saveMessages = async () => {
+      if (state.messages.length > 0) {
+        try {
+          await storage.save(state.messages);
+        } catch (error) {
+          console.error('Failed to save messages:', error);
+        }
+      }
+    };
+    saveMessages();
   }, [state.messages]);
 
   // Auto-scroll to bottom when messages change
@@ -119,9 +130,9 @@ export const ChatWidget: React.FC = () => {
               <p className="text-xs text-blue-100">Ask about components</p>
             </div>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (confirm('Clear chat history?')) {
-                  storage.clear();
+                  await storage.clear();
                   setState(prev => ({ ...prev, messages: [] }));
                 }
               }}
