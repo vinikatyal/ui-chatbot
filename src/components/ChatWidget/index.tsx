@@ -12,6 +12,7 @@ export const ChatWidget: React.FC = () => {
     isOpen: false
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,6 +27,11 @@ export const ChatWidget: React.FC = () => {
       storage.save(state.messages);
     }
   }, [state.messages]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [state.messages, isLoading]);
 
   const handleSend = async (content: string) => {
     const userMessage: Message = {
@@ -56,6 +62,7 @@ export const ChatWidget: React.FC = () => {
     }));
 
     try {
+      setError(null);
       for await (const chunk of chatService.streamResponse(content)) {
         setState(prev => ({
           ...prev,
@@ -68,6 +75,12 @@ export const ChatWidget: React.FC = () => {
       }
     } catch (error) {
       console.error('Stream error:', error);
+      setError('Failed to get response. Please try again.');
+      // Remove the failed assistant message
+      setState(prev => ({
+        ...prev,
+        messages: prev.messages.filter(msg => msg.id !== assistantMessage.id)
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -142,6 +155,17 @@ export const ChatWidget: React.FC = () => {
                 <div className="animate-bounce">●</div>
                 <div className="animate-bounce delay-100">●</div>
                 <div className="animate-bounce delay-200">●</div>
+              </div>
+            )}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                {error}
+                <button
+                  onClick={() => setError(null)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
               </div>
             )}
             <div ref={messagesEndRef} />

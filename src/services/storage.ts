@@ -1,7 +1,9 @@
+import type { Message } from '@/types';
+
 const STORAGE_KEY = 'ui-chatbot-history';
 
 export const storage = {
-  save: (messages: any[]) => {
+  save: (messages: Message[]) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
     } catch (error) {
@@ -9,7 +11,7 @@ export const storage = {
     }
   },
 
-  load: () => {
+  load: (): Message[] => {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : [];
