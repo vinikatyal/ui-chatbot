@@ -1,29 +1,37 @@
-import React from 'react';
-import type { ComponentData } from '../../types';
-import { Button, ChatBubble } from '../UIComponents';
+import React, { Suspense, lazy } from 'react';
+import type { ComponentRendererProps } from '@/types/interfaces';
 
-interface ComponentRendererProps {
-  components: ComponentData[];
-}
+// Lazy load components
+const Button = lazy(() => import('@/components/UIComponents/Button').then(module => ({ default: module.Button })));
+const ChatBubble = lazy(() => import('@/components/UIComponents/ChatBubble').then(module => ({ default: module.ChatBubble })));
 
-const componentMap = {
-  button: Button,
-  chatBubble: ChatBubble,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const componentMap: Record<string, React.LazyExoticComponent<React.ComponentType<any>>> = {
+    button: Button,
+    chatBubble: ChatBubble,
 };
 
-export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ components }) => {
-  return (
-    <div className="mt-4 space-y-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-      {components.map((comp) => {
-        const Component = componentMap[comp.type];
-        if (!Component) return null;
-        
-        return (
-          <div key={comp.id} className="p-2 bg-white rounded shadow-sm">
-            <Component {...comp.props} />
-          </div>
-        );
-      })}
+const LoadingFallback = () => (
+    <div className="p-2 bg-white rounded shadow-sm animate-pulse">
+        <div className="h-8 bg-gray-200 rounded"></div>
     </div>
-  );
+);
+
+export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ components }) => {
+    return (
+        <div className="mt-4 space-y-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+            {components.map((comp) => {
+                const Component = componentMap[comp.type];
+                if (!Component) return null;
+
+                return (
+                    <div key={comp.id} className="p-2 bg-white rounded shadow-sm">
+                        <Suspense fallback={<LoadingFallback />}>
+                            <Component {...comp.props} />
+                        </Suspense>
+                    </div>
+                );
+            })}
+        </div>
+    );
 };

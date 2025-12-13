@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Message, ChatState } from '../../types';
-import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
-import { chatService } from '../../services/chatService';
-import { storage } from '../../services/storage';
-import './style.css';
+import type { Message, ChatState } from '@/types';
+import { ChatMessage } from '@/components/ChatWidget/ChatMessage';
+import { ChatInput } from '@/components/ChatWidget/ChatInput';
+import { chatService } from '@/services/chatService';
+import { storage } from '@/services/storage';
+import '@/components/ChatWidget/style.css';
 
 export const ChatWidget: React.FC = () => {
   const [state, setState] = useState<ChatState>({
@@ -98,7 +98,7 @@ export const ChatWidget: React.FC = () => {
 
       {/* Chat Panel */}
       {state.isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 animate-slide-up">
+        <div className="fixed bottom-24 right-6 w-96 h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 animate-slide-up">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-2xl flex justify-between items-center">
             <div>
@@ -125,7 +125,7 @@ export const ChatWidget: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {state.messages.length === 0 ? (
               <div className="text-center text-gray-500 mt-8">
-                <p className="mb-4">👋 Welcome to UI Library Assistant!</p>
+                <p className="mb-4">Welcome to UI Library Assistant</p>
                 <p className="text-sm">Try asking:</p>
                 <ul className="text-sm mt-2 space-y-1">
                   <li>"Show me button components"</li>

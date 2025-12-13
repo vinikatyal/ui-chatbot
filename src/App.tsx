@@ -1,4 +1,4 @@
-import { ChatWidget } from './components/ChatWidget';
+import { ChatWidget } from '@/components/ChatWidget';
 
 function App() {
   return (
@@ -20,12 +20,6 @@ function App() {
             Welcome to our component library. Use the chat assistant in the bottom-right 
             corner to explore and preview components interactively.
           </p>
-          <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-4">
-            <p className="text-sm text-blue-800">
-              💡 <strong>Tip:</strong> Try asking the assistant to show you different button 
-              styles or chat bubble variations!
-            </p>
-          </div>
         </section>
 
         <section className="bg-white rounded-lg shadow-md p-8">
@@ -39,7 +33,7 @@ function App() {
         </section>
       </div>
 
-      {/* Embeddable Chat Widget */}
+      {/* My Chat Widget */}
       <ChatWidget />
     </div>
   );

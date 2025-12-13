@@ -1,5 +1,6 @@
-import { type ComponentData } from '../types';
+import { type ComponentData } from '@/types';
 
+// This component is being rendered based on my text we can use AI Layer in this 
 const componentPatterns = {
   button: /button/i,
   chatBubble: /chat bubble|message bubble|chat layout/i,
