@@ -3,7 +3,7 @@ import type { Message } from '@/types';
 
 const DB_NAME = 'ui-chatbot-db';
 const DB_VERSION = 1;
-const STORE_NAME = 'messages';
+const STORE_NAME = 'messages'; // table name
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 

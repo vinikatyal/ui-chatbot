@@ -32,7 +32,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 )}
 
                 <span className="text-xs text-gray-500 mt-1 block">
-                    {new Date(message.timestamp).toLocaleTimeString()}
+                    {new Date(message.timestamp).toLocaleString()}
                 </span>
             </div>
         </div>
