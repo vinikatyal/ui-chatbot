@@ -4,11 +4,14 @@ import type { ComponentRendererProps } from '@/types/interfaces';
 // Lazy load components
 const Button = lazy(() => import('@/components/UIComponents/Button').then(module => ({ default: module.Button })));
 const ChatBubble = lazy(() => import('@/components/UIComponents/ChatBubble').then(module => ({ default: module.ChatBubble })));
+const Input = lazy(() => import('@/components/UIComponents/Input').then(module => ({ default: module.Input })));
 
+// this needs to be automated with AI 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, React.LazyExoticComponent<React.ComponentType<any>>> = {
     button: Button,
     chatBubble: ChatBubble,
+    input: Input,
 };
 
 const LoadingFallback = () => (

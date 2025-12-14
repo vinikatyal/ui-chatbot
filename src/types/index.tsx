@@ -8,8 +8,8 @@ export interface Message {
   }
   
   export interface ComponentData {
-    type: 'button' | 'chatBubble' | 'card';
-    props: Record<string, any>;
+    type: 'button' | 'chatBubble' | 'card' | 'input';
+    props: Record<string, unknown>;
     id: string;
   }
   
