@@ -5,15 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build": "vite build",
+    "build:widget": "vite build --config vite.widget.config.ts",
+    "preview": "vite preview",
+    "preview:widget": "vite preview --outDir dist-widget",
+    "analyze": "vite build --config vite.widget.config.ts && open dist/stats.html"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.6",
+    "antd": "^6.1.0",
     "idb": "^8.0.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-markdown": "^10.1.0"
+    "react-live": "^4.1.8",
+    "react-markdown": "^10.1.0",
+    "rollup-plugin-visualizer": "^6.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

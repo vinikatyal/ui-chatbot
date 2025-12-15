@@ -9,7 +9,8 @@ export interface Message {
   }
   
   export interface ComponentData {
-    type: 'button' | 'chatBubble' | 'card' | 'input';
+    library: string;
+    type: 'button' | 'chatbubble' | 'card' | 'input' | 'textfield' | 'chip' | 'switch' | 'tag';
     props: Record<string, unknown>;
     id: string;
   }

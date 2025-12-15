@@ -2,20 +2,49 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { Message, ChatState } from "@/types";
 import { ChatMessage } from "@/components/ChatWidget/ChatMessage";
 import { ChatInput } from "@/components/ChatWidget/ChatInput";
-import { chatService } from "@/services/chatService";
+import { ChatService } from "@/services/chatService";
 import { storage } from "@/services/storage";
 import "@/components/ChatWidget/style.css";
 
-export const ChatWidget: React.FC = () => {
+interface ChatWidgetProps {
+  apiUrl?: string;
+  theme?: 'light' | 'dark';
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+}
+
+const POSITION_CLASSES = {
+  'bottom-right': 'bottom-6 right-6',
+  'bottom-left': 'bottom-6 left-6',
+  'top-right': 'top-6 right-6',
+  'top-left': 'top-6 left-6',
+};
+
+const CHAT_POSITION_CLASSES = {
+  'bottom-right': 'bottom-24 right-6',
+  'bottom-left': 'bottom-24 left-6',
+  'top-right': 'top-24 right-6',
+  'top-left': 'top-24 left-6',
+};
+
+export const ChatWidget: React.FC<ChatWidgetProps> = ({
+  apiUrl = "http://localhost:8000",
+  theme = 'light',
+  position = 'bottom-right'
+}) => {
   const [state, setState] = useState<ChatState>({ messages: [], isOpen: false });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [chatService] = useState(() => new ChatService({
+    apiUrl,
+    onError: (error) => console.error('Chat error:', error)
+  }));
 
   const seqRef = useRef<number>(1);
   const messagesRef = useRef<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Keep ref synced (prevents stale state when streaming)
+  // Keep ref synced
   useEffect(() => {
     messagesRef.current = state.messages;
   }, [state.messages]);
@@ -34,13 +63,12 @@ export const ChatWidget: React.FC = () => {
     })();
   }, []);
 
+
   // Scroll only when a new message is added 
   useEffect(() => {
     if (!state.isOpen) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [state.messages.length, state.isOpen]);
-
-
 
   const handleSend = useCallback(async (content: string) => {
     if (isLoading) return;
@@ -75,13 +103,12 @@ export const ChatWidget: React.FC = () => {
       seq: assistantSeq
     };
 
-    //  Append BOTH in one update to guarantee order
+    // Append BOTH in one update to guarantee order
     setState((prev) => ({
       ...prev,
       messages: [...prev.messages, userMessage, assistantMessage],
     }));
 
-    // Build request from ref (old list) + the newly created user message
     const allMessages = [...messagesRef.current, userMessage];
 
     try {
@@ -101,8 +128,8 @@ export const ChatWidget: React.FC = () => {
       }
     } catch (e) {
       console.error("Stream error:", e);
-      setError("Failed to get response. Please try again.");
-      // remove assistant message on failure
+      setError("There was an issue, try requesting again");
+
       setState((prev) => ({
         ...prev,
         messages: prev.messages.filter((m) => m.id !== assistantId),
@@ -110,7 +137,7 @@ export const ChatWidget: React.FC = () => {
     } finally {
       setIsLoading(false);
 
-      //  streaming done
+      // Streaming done
       setState((prev) => ({
         ...prev,
         messages: prev.messages.map((m) =>
@@ -118,23 +145,36 @@ export const ChatWidget: React.FC = () => {
         ),
       }));
 
-      // Persist ONCE after streaming finishes (keeps IndexedDB ordered + fast)
-      // Use the ref after state settles (next tick)
       setTimeout(() => {
         storage.save(messagesRef.current).catch((err) => {
           console.error("Failed to save messages:", err);
         });
       }, 0);
     }
-  }, [isLoading])
+  }, [isLoading, chatService]);
 
   const toggleChat = () => setState((prev) => ({ ...prev, isOpen: !prev.isOpen }));
 
+  const handleClearHistory = async () => {
+    if (confirm("Clear chat history?")) {
+      await storage.clear();
+      setState((prev) => ({ ...prev, messages: [] }));
+      messagesRef.current = [];
+      seqRef.current = 1;
+    }
+  };
+
+  const isDark = theme === 'dark';
+  const buttonPosition = POSITION_CLASSES[position];
+  const chatPosition = CHAT_POSITION_CLASSES[position];
+
   return (
     <>
+      {/* Toggle Button */}
       <button
         onClick={toggleChat}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all hover:scale-110 z-50 flex items-center justify-center"
+        className={`fixed ${buttonPosition} w-14 h-14 ${isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
+          } text-white rounded-full shadow-lg transition-all hover:scale-110 z-50 flex items-center justify-center`}
         aria-label="Toggle chat"
       >
         {state.isOpen ? (
@@ -148,23 +188,27 @@ export const ChatWidget: React.FC = () => {
         )}
       </button>
 
+      {/* Chat Window */}
       {state.isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 animate-slide-up">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-2xl flex justify-between items-center">
+        <div className={`fixed ${chatPosition} w-96 h-[550px] ${isDark ? 'bg-gray-900' : 'bg-white'
+          } rounded-2xl shadow-2xl flex flex-col z-50 animate-slide-up`}>
+
+          {/* Header */}
+          <div className={`${isDark
+              ? 'bg-gradient-to-r from-gray-800 to-gray-700'
+              : 'bg-gradient-to-r from-blue-600 to-blue-700'
+            } text-white p-4 rounded-t-2xl flex justify-between items-center`}>
             <div>
               <h3 className="font-semibold text-lg">UI Library Assistant</h3>
-              <p className="text-xs text-blue-100">Ask about components</p>
+              <p className={`text-xs ${isDark ? 'text-gray-300' : 'text-blue-100'}`}>
+                Ask about components
+              </p>
             </div>
 
             <button
-              onClick={async () => {
-                if (confirm("Clear chat history?")) {
-                  await storage.clear();
-                  setState((prev) => ({ ...prev, messages: [] }));
-                  messagesRef.current = [];
-                }
-              }}
-              className="text-white hover:bg-blue-500 p-2 rounded"
+              onClick={handleClearHistory}
+              className={`text-white ${isDark ? 'hover:bg-gray-600' : 'hover:bg-blue-500'
+                } p-2 rounded`}
               title="Clear history"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,9 +222,12 @@ export const ChatWidget: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          {/* Messages */}
+          <div className={`flex-1 overflow-y-auto p-4 ${isDark ? 'bg-gray-800' : 'bg-gray-50'
+            }`}>
             {state.messages.length === 0 ? (
-              <div className="text-center text-gray-500 mt-8">
+              <div className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-500'
+                } mt-8`}>
                 <p className="mb-4">Welcome to UI Library Assistant</p>
                 <p className="text-sm">Try asking:</p>
                 <ul className="text-sm mt-2 space-y-1">
@@ -189,11 +236,14 @@ export const ChatWidget: React.FC = () => {
                 </ul>
               </div>
             ) : (
-              state.messages.map((message) => <ChatMessage key={message.id} message={message} />)
+              state.messages.map((message) => (
+                <ChatMessage key={message.id} message={message} />
+              ))
             )}
 
             {isLoading && (
-              <div className="flex items-center gap-2 text-gray-500 text-sm mt-2">
+              <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                } text-sm mt-2`}>
                 <div className="animate-bounce">●</div>
                 <div className="animate-bounce delay-100">●</div>
                 <div className="animate-bounce delay-200">●</div>
@@ -201,9 +251,16 @@ export const ChatWidget: React.FC = () => {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm mt-2">
+              <div className={`${isDark
+                  ? 'bg-red-900 border-red-700 text-red-200'
+                  : 'bg-red-50 border-red-200 text-red-700'
+                } border px-4 py-2 rounded-lg text-sm mt-2`}>
                 {error}
-                <button onClick={() => setError(null)} className="ml-2 text-red-500 hover:text-red-700">
+                <button
+                  onClick={() => setError(null)}
+                  className={`ml-2 ${isDark ? 'text-red-300 hover:text-red-100' : 'text-red-500 hover:text-red-700'
+                    }`}
+                >
                   ×
                 </button>
               </div>
@@ -212,6 +269,7 @@ export const ChatWidget: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Input */}
           <ChatInput onSend={handleSend} disabled={isLoading} />
         </div>
       )}

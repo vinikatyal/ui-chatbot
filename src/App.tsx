@@ -17,7 +17,7 @@ function App() {
         <section className="bg-white rounded-lg shadow-md p-8 mb-8">
           <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
           <p className="text-gray-700 mb-4">
-            Welcome to our component library. Use the chat assistant in the bottom-right 
+            Welcome to our component library. Use the chat assistant in the bottom-right
             corner to explore and preview components interactively.
           </p>
         </section>
@@ -34,7 +34,9 @@ function App() {
       </div>
 
       {/* My Chat Widget */}
-      <ChatWidget />
+      <ChatWidget apiUrl={'http://localhost:8000'}
+        theme={'light'}
+        position={'bottom-right'} />
     </div>
   );
 }

@@ -54,7 +54,7 @@ function App() {
 - Error handling
 
 ### 3. Persistent Storage
-- localStorage for chat history
+- IndexDb for chat history
 - Auto-save on message changes
 - Restore on page refresh
 - Clear history option
@@ -66,28 +66,14 @@ function App() {
 - Error handling
 
 ### 5. UI Example Rendering
-- Renders interactive Button components (Primary, Secondary, Ghost, Danger)
-- Renders interactive ChatBubble components (User, Assistant, System)
+- Renders interactive Button components from Material UI, Antd , etc
 - Lazy-loaded components
 - Example queries: "Show me button components", "Display chat bubble variations"
 
-## Architecture
-
-```
-src/
-├── components/
-│   ├── ChatWidget/
-│   ├── ComponentRenderer/
-│   └── UIComponents/
-├── services/
-│   ├── chatService.ts
-│   └── storage.ts
-└── types/
-```
 
 ## Technologies
 
-- React 19 with TypeScript
+- React 18 with TypeScript
 - Vite
 - Tailwind CSS
 - Absolute imports (@/ alias)
@@ -99,34 +85,14 @@ src/
 - Lazy loading for UI components
 - Code splitting with React.lazy()
 - Suspense boundaries
-- Optimized bundle size
 
-### Developer Experience
-- Absolute imports
-- TypeScript strict mode
-- Modular architecture
-- Self-contained design
-
-## Assumptions
-
-1. localStorage available (modern browsers)
-2. Supports Button and ChatBubble components
-3. Regex pattern matching for queries (replaceable with LLM)
-4. Mock streaming with setTimeout (replaceable with SSE/WebSocket)
 
 ## Tradeoffs
 
-1. Pattern matching instead of AI/LLM integration
-2. LocalStorage instead of backend sync
-3. Fixed component set (extend componentMap to add more)
+1. AI/LLM integration for gettin json structure for components
+2. Indexdb instead of backend sync
+3. Fixed component set for libraries
 
-## Limitations
-
-1. No backend integration (mock responses)
-2. Limited component types (2 supported)
-3. No authentication
-4. No internationalization
-5. No analytics
 
 ## Future Enhancements
 
@@ -135,19 +101,7 @@ src/
 - Backend chat history sync
 - User authentication
 - Analytics
-- Internationalization
-- Dark mode
 - Component code preview
-
-## Production Considerations
-
-- Error handling: Implemented
-- Type safety: TypeScript strict mode
-- Performance: Lazy loading and code splitting
-- Accessibility: Needs ARIA labels and keyboard navigation
-- Testing: Needs unit and integration tests
-- Monitoring: Needs error tracking
-- Security: Needs input sanitization
 
 ## License
 

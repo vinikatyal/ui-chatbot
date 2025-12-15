@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Test</title>
+    <style src="../dist/chat-widget.css"></style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        button {
+            margin: 10px 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #3b82f6;
+            color: white;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Chat Widget Demo</h1>
+    <p>Test the chat widget with the buttons below:</p>
+
+    <div>
+        <button id="initBtn">Initialize Widget</button>
+        <button id="destroyBtn">Destroy Widget</button>
+        <button id="toggleThemeBtn">Toggle Theme (Light/Dark)</button>
+        <button id="changePositionBtn">Change Position</button>
+    </div>
+
+    <!-- Load the UMD bundle -->
+    <script src="../dist/chat-widget.umd.js"></script>
+
+    <script>
+        let currentTheme = 'light';
+        let positions = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
+        let currentPositionIndex = 0;
+
+        // Initialize widget on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.ChatWidgetDemo) {
+                console.log('ChatWidgetDemo loaded successfully');
+
+                // Auto-initialize
+                window.ChatWidgetDemo.init({
+                    apiUrl: 'http://localhost:8000',
+                    theme: 'light',
+                    position: 'bottom-right',
+                    onReady: () => console.log('✅ Widget initialized!'),
+                    onError: (err) => console.error('❌ Widget error:', err)
+                });
+            } else {
+                console.error('❌ ChatWidgetDemo not found on window object');
+            }
+        });
+
+        // Initialize button
+        document.getElementById('initBtn').onclick = () => {
+            window.ChatWidgetDemo.init({
+                apiUrl: 'http://localhost:8000',
+                theme: currentTheme,
+                position: positions[currentPositionIndex],
+                onReady: () => console.log('Widget initialized'),
+                onError: (err) => console.error(err)
+            });
+        };
+
+        // Destroy button
+        document.getElementById('destroyBtn').onclick = () => {
+            window.ChatWidgetDemo.destroy();
+            console.log('Widget destroyed');
+        };
+
+        // Toggle theme button
+        document.getElementById('toggleThemeBtn').onclick = () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            window.ChatWidgetDemo.update({ theme: currentTheme });
+            console.log('Theme changed to:', currentTheme);
+        };
+
+        // Change position button
+        document.getElementById('changePositionBtn').onclick = () => {
+            currentPositionIndex = (currentPositionIndex + 1) % positions.length;
+            const newPosition = positions[currentPositionIndex];
+            window.ChatWidgetDemo.update({ position: newPosition });
+            console.log('Position changed to:', newPosition);
+        };
+    </script>
+</body>
+
+</html>

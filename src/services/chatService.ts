@@ -1,8 +1,19 @@
 import type { Message, ComponentData } from "@/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+export interface ChatServiceConfig {
+  apiUrl: string;
+  onError?: (error: Error) => void;
+}
 
 export class ChatService {
+  private apiUrl: string;
+  private onError?: (error: Error) => void;
+
+  constructor(config: ChatServiceConfig) {
+    this.apiUrl = config.apiUrl;
+    this.onError = config.onError;
+  }
   async *streamResponse(
     messages: Message[]
   ): AsyncGenerator<{ content: string; components?: ComponentData[] }> {
@@ -13,7 +24,7 @@ export class ChatService {
         content: msg.content,
       }));
 
-      const response = await fetch(`${API_BASE_URL}/parse/components`, {
+      const response = await fetch(`${this.apiUrl}/parse/components`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +75,7 @@ export class ChatService {
                 accumulatedContent += content;
                 yield { content: accumulatedContent };
               }
-              
+
               if (parsed.choices?.[0]?.finish_reason) {
                 // Parse components from the final content
                 const components =
@@ -86,7 +97,6 @@ export class ChatService {
       throw error;
     }
   }
-
 
   private parseComponentsFromContent(content: string): ComponentData[] {
     const components: ComponentData[] = [];
@@ -118,81 +128,301 @@ export class ChatService {
       return components;
     }
 
-    if (data.type === "button-group" && Array.isArray(data.variants)) {
-      data.variants.forEach((variant: string, index: number) => {
-        components.push({
-          type: "button",
-          props: {
-            variant: variant,
-            children: `${
-              variant.charAt(0).toUpperCase() + variant.slice(1)
-            } Button`,
-          },
-          id: `btn-group-${index}-${Date.now()}`,
-        });
-      });
-      return components;
-    }
+    // Extract library (default to 'tailwind' if not specified)
+    const library = (data.library as "mui" | "antd" | "tailwind") || "tailwind";
 
-    if (data.type === "ui-group" && Array.isArray(data.components)) {
+    // Handle library-level component array
+    if (data.library && Array.isArray(data.components)) {
       data.components.forEach((comp: Record<string, unknown>) => {
-        const converted = this.convertToComponentData(comp);
+        const converted = this.convertToComponentData({
+          ...comp,
+          library: data.library,
+        });
         components.push(...converted);
       });
       return components;
     }
 
-    // Handle single button
-    if (data.type === "button") {
-      components.push({
-        type: "button",
-        props: {
-          variant: data.variant || "primary",
-          children: data.text || data.children || "Button",
-        },
-        id: `btn-${Date.now()}-${Math.random()}`,
-      });
+    // Normalize component type to lowercase for comparison
+    const type = (data.type as string)?.toLowerCase() || "";
+    const props = (data.props as Record<string, unknown>) || {};
+
+    // ======================
+    // MATERIAL-UI COMPONENTS
+    // ======================
+    if (library === "mui") {
+      switch (type) {
+        case "button":
+          components.push({
+            type: "button",
+            library: "mui",
+            props: {
+              variant: props.variant || "contained",
+              color: props.color || "primary",
+              size: props.size || "medium",
+              disabled: props.disabled || false,
+              children: props.children || props.text || "Button",
+              ...props,
+            },
+            id: `mui-btn-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "textfield":
+          components.push({
+            type: "textfield",
+            library: "mui",
+            props: {
+              label: props.label || "",
+              variant: props.variant || "outlined",
+              type: props.type || "text",
+              placeholder: props.placeholder || "",
+              required: props.required || false,
+              fullWidth: props.fullWidth !== undefined ? props.fullWidth : true,
+              size: props.size || "medium",
+              ...props,
+            },
+            id: `mui-textfield-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "card":
+          components.push({
+            type: "card",
+            library: "mui",
+            props: {
+              elevation: props.elevation || 1,
+              variant: props.variant || "elevation",
+              children: props.children || "Card content",
+              ...props,
+            },
+            id: `mui-card-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "chip":
+          components.push({
+            type: "chip",
+            library: "mui",
+            props: {
+              label: props.label || "Chip",
+              color: props.color || "default",
+              variant: props.variant || "filled",
+              size: props.size || "medium",
+              clickable: props.clickable || false,
+              ...props,
+            },
+            id: `mui-chip-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "switch":
+          components.push({
+            type: "switch",
+            library: "mui",
+            props: {
+              defaultChecked: props.defaultChecked || false,
+              color: props.color || "primary",
+              size: props.size || "medium",
+              disabled: props.disabled || false,
+              ...props,
+            },
+            id: `mui-switch-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        default:
+          console.warn(`Unknown MUI component type: ${type}`);
+      }
       return components;
     }
 
-    if (data.type === "input") {
-      components.push({
-        type: "input",
-        props: {
-          inputType: data.inputType || "text",
-          placeholder: data.placeholder || "",
-          label: data.label,
-          required: data.required || false,
-        },
-        id: `input-${Date.now()}-${Math.random()}`,
-      });
+    // =======================
+    // ANT DESIGN COMPONENTS
+    // =======================
+    if (library === "antd") {
+      switch (type) {
+        case "button":
+          components.push({
+            type: "button",
+            library: "antd",
+            props: {
+              type: props.type || "primary",
+              danger: props.danger || false,
+              size: props.size || "middle",
+              disabled: props.disabled || false,
+              loading: props.loading || false,
+              children: props.children || props.text || "Button",
+              ...props,
+            },
+            id: `antd-btn-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "input":
+          components.push({
+            type: "input",
+            library: "antd",
+            props: {
+              placeholder: props.placeholder || "",
+              type: props.type || "text",
+              size: props.size || "middle",
+              disabled: props.disabled || false,
+              allowClear:
+                props.allowClear !== undefined ? props.allowClear : true,
+              ...props,
+            },
+            id: `antd-input-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "card":
+          components.push({
+            type: "card",
+            library: "antd",
+            props: {
+              title: props.title || "",
+              bordered: props.bordered !== undefined ? props.bordered : true,
+              hoverable: props.hoverable || false,
+              size: props.size || "default",
+              children: props.children || "Card content",
+              ...props,
+            },
+            id: `antd-card-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "tag":
+          components.push({
+            type: "tag",
+            library: "antd",
+            props: {
+              color: props.color || "blue",
+              closable: props.closable || false,
+              children: props.children || props.text || "Tag",
+              ...props,
+            },
+            id: `antd-tag-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "switch":
+          components.push({
+            type: "switch",
+            library: "antd",
+            props: {
+              defaultChecked: props.defaultChecked || false,
+              size: props.size || "default",
+              disabled: props.disabled || false,
+              loading: props.loading || false,
+              ...props,
+            },
+            id: `antd-switch-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        default:
+          console.warn(`Unknown Ant Design component type: ${type}`);
+      }
       return components;
     }
 
-    // Handle chatBubble if present
-    if (data.type === "chatBubble") {
-      components.push({
-        type: "chatBubble",
-        props: {
-          variant: data.variant || "assistant",
-          message: data.message || data.text || "Message",
-        },
-        id: `chatbubble-${Date.now()}-${Math.random()}`,
-      });
-      return components;
-    }
+    // ========================
+    // TAILWIND CUSTOM COMPONENTS
+    // ========================
+    if (library === "tailwind") {
+      switch (type) {
+        case "button":
+          components.push({
+            type: "button",
+            library: "tailwind",
+            props: {
+              variant: props.variant || data.variant || "primary",
+              text: props.text || props.children || data.text || "Button",
+              disabled: props.disabled || false,
+              ...props,
+            },
+            id: `tailwind-btn-${Date.now()}-${Math.random()}`,
+          });
+          break;
 
-    // generic fallback
-    if (data.type) {
-      components.push({
-        type: data.type as ComponentData["type"],
-        props: { ...data, type: undefined }, // Remove type from props
-        id: `${data.type}-${Date.now()}-${Math.random()}`,
-      });
+        case "input":
+          components.push({
+            type: "input",
+            library: "tailwind",
+            props: {
+              inputType: props.inputType || data.inputType || "text",
+              placeholder: props.placeholder || data.placeholder || "",
+              label: props.label || data.label || "",
+              required: props.required || data.required || false,
+              disabled: props.disabled || false,
+              ...props,
+            },
+            id: `tailwind-input-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "chatbubble":
+          components.push({
+            type: "chatbubble",
+            library: "tailwind",
+            props: {
+              variant: props.variant || data.variant || "assistant",
+              message:
+                props.message ||
+                data.message ||
+                props.text ||
+                data.text ||
+                "Message",
+              ...props,
+            },
+            id: `tailwind-chatbubble-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        case "card":
+          components.push({
+            type: "card",
+            library: "tailwind",
+            props: {
+              title: props.title || data.title || "",
+              content:
+                props.content ||
+                props.children ||
+                data.content ||
+                "Card content",
+              ...props,
+            },
+            id: `tailwind-card-${Date.now()}-${Math.random()}`,
+          });
+          break;
+
+        // Legacy: Handle button-group
+        case "button-group":
+          if (Array.isArray(data.variants)) {
+            data.variants.forEach((variant: string, index: number) => {
+              components.push({
+                type: "button",
+                library: "tailwind",
+                props: {
+                  variant: variant,
+                  text: `${
+                    variant.charAt(0).toUpperCase() + variant.slice(1)
+                  } Button`,
+                },
+                id: `tailwind-btn-group-${index}-${Date.now()}`,
+              });
+            });
+          }
+          break;
+
+        default:
+          console.warn(`Unknown Tailwind component type: ${type}`);
+      }
+      return components;
     }
 
     return components;
   }
 }
 
-export const chatService = new ChatService();
