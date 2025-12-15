@@ -87,6 +87,7 @@ export class ChatService {
     }
   }
 
+
   private parseComponentsFromContent(content: string): ComponentData[] {
     const components: ComponentData[] = [];
 

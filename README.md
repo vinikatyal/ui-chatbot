@@ -18,6 +18,13 @@ npm install
 npm run dev
 ```
 
+
+```bash
+python -m venv myenv
+source myenv/bin/activate
+uv run uvicorn main:app --reload
+```
+
 ## Usage
 
 ```tsx

@@ -9,8 +9,8 @@ const Input = lazy(() => import('@/components/UIComponents/Input').then(module =
 // this needs to be automated with AI 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, React.LazyExoticComponent<React.ComponentType<any>>> = {
-    button: Button,
-    chatBubble: ChatBubble,
+  button: Button,
+  chatBubble: ChatBubble,
     input: Input,
 };
 
@@ -21,20 +21,20 @@ const LoadingFallback = () => (
 );
 
 export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ components }) => {
-    return (
-        <div className="mt-4 space-y-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-            {components.map((comp) => {
-                const Component = componentMap[comp.type];
-                if (!Component) return null;
-
-                return (
-                    <div key={comp.id} className="p-2 bg-white rounded shadow-sm">
+  return (
+    <div className="mt-4 space-y-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+      {components.map((comp) => {
+        const Component = componentMap[comp.type];
+        if (!Component) return null;
+        
+        return (
+          <div key={comp.id} className="p-2 bg-white rounded shadow-sm">
                         <Suspense fallback={<LoadingFallback />}>
-                            <Component {...comp.props} />
+            <Component {...comp.props} />
                         </Suspense>
-                    </div>
-                );
-            })}
-        </div>
-    );
+          </div>
+        );
+      })}
+    </div>
+  );
 };

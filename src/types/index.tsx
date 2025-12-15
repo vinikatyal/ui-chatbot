@@ -3,6 +3,7 @@ export interface Message {
     role: 'user' | 'assistant';
     content: string;
     timestamp: number;
+    seq: number;
     components?: ComponentData[];
     isStreaming?: boolean;
   }
