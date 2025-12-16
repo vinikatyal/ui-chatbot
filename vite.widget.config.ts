@@ -4,6 +4,8 @@ import { resolve } from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
+  base: "./",
+
   plugins: [
     react(),
     visualizer({
@@ -35,9 +37,8 @@ export default defineConfig({
 
     rollupOptions: {
       external: [],
-
       output: [
-        // ---------- ES build (code-split + manual chunks) ----------
+        // ES build: code-splitting + chunks
         {
           format: "es",
           entryFileNames: "chat-widget.es.js",
@@ -47,41 +48,35 @@ export default defineConfig({
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
 
-            // React core
-            if (id.includes("/react/") || id.includes("/react-dom/")) return "react";
-
-            // Ant Design
-            if (id.includes("/antd/") || id.includes("@ant-design")) return "antd";
-
-            // MUI
+            if (id.includes("/react/") || id.includes("/react-dom/"))
+              return "react";
+            if (id.includes("/antd/") || id.includes("@ant-design"))
+              return "antd";
             if (id.includes("/@mui/")) return "mui";
-
-            // Emotion (used by MUI)
             if (id.includes("/@emotion/")) return "emotion";
-
-            // Markdown stack
-            if (id.includes("/react-markdown/") || id.includes("/remark-") || id.includes("/rehype-"))
+            if (
+              id.includes("/react-markdown/") ||
+              id.includes("/remark-") ||
+              id.includes("/rehype-")
+            )
               return "markdown";
-
-            // Live editor tooling (often pulls a lot)
-            if (id.includes("/react-live/") || id.includes("/prism") || id.includes("/buble"))
+            if (
+              id.includes("/react-live/") ||
+              id.includes("/prism") ||
+              id.includes("/buble")
+            )
               return "live-editor";
-
-            // IndexedDB
             if (id.includes("/idb/")) return "idb";
 
-            // Everything else
             return "vendor";
           },
         },
-
-        // ---------- UMD build (single-file, no code-splitting) ----------
         {
           format: "umd",
           name: "ChatWidgetDemo",
           entryFileNames: "chat-widget.umd.js",
           assetFileNames: "assets/[name]-[hash][extname]",
-          inlineDynamicImports: true, // IMPORTANT: prevents extra chunks in UMD
+          inlineDynamicImports: true,
           globals: {},
         },
       ],
@@ -94,4 +89,3 @@ export default defineConfig({
     global: "globalThis",
   },
 });
-

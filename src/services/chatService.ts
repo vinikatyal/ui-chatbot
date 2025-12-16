@@ -1,6 +1,5 @@
 import type { Message, ComponentData } from "@/types";
 
-
 export interface ChatServiceConfig {
   apiUrl: string;
   onError?: (error: Error) => void;
@@ -132,6 +131,8 @@ export class ChatService {
     const library = (data.library as "mui" | "antd" | "tailwind") || "tailwind";
 
     // Handle library-level component array
+
+    // we can also add AI layer here for conversion read via AI Agent
     if (data.library && Array.isArray(data.components)) {
       data.components.forEach((comp: Record<string, unknown>) => {
         const converted = this.convertToComponentData({
@@ -192,7 +193,7 @@ export class ChatService {
             library: "mui",
             props: {
               elevation: props.elevation || 1,
-              variant: props.variant || "elevation",
+              variant: props.variant || "outlined",
               children: props.children || "Card content",
               ...props,
             },
@@ -277,19 +278,22 @@ export class ChatService {
           break;
 
         case "card":
+          // removed props its causing issues
           components.push({
             type: "card",
             library: "antd",
             props: {
               title: props.title || "",
-              bordered: props.bordered !== undefined ? props.bordered : true,
-              hoverable: props.hoverable || false,
+              variant:
+                props.variant ??
+                (props.bordered === false ? "borderless" : "outlined"),
+              hoverable: !!props.hoverable,
               size: props.size || "default",
-              children: props.children || "Card content",
-              ...props,
+              children: props.children || "Card content"
             },
             id: `antd-card-${Date.now()}-${Math.random()}`,
           });
+
           break;
 
         case "tag":
@@ -425,4 +429,3 @@ export class ChatService {
     return components;
   }
 }
-

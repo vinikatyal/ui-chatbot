@@ -134,9 +134,6 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ components
                   {displayName}
                 </span>
               </div>
-              <span className="text-xs text-gray-400 font-mono">
-                #{comp.id.split('-').pop()?.substring(0, 6)}
-              </span>
             </div>
 
             {/* Component Preview */}

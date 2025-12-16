@@ -18,6 +18,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         ? message.content
         : stripJsonCodeBlocks(message.content);
 
+    console.log("Display Text", displayText)
+
     return (
         <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
             <div className="max-w-[85%]">
