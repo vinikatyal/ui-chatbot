@@ -11,13 +11,12 @@ An embeddable chat widget for design systems. Users can request and preview inte
 - Lazy-loaded components
 - Error handling
 
-## Installation
+## Installation to use dev version
 
 ```bash
 npm install
 npm run dev
 ```
-
 
 ```bash
 python -m venv myenv
@@ -28,25 +27,51 @@ uv run uvicorn main:app --reload
 ## Usage
 
 ```tsx
-import { ChatWidget } from '@/components/ChatWidget';
+import { ChatWidget } from "@/components/ChatWidget";
 
 function App() {
   return (
     <div>
-      <ChatWidget />
+      <ChatWidget
+        apiUrl={"http://localhost:8000"}
+        theme={"light"}
+        position={"bottom-right"}
+      />
     </div>
   );
 }
 ```
 
+
+
+
+## Build the production version / using local API
+
+```bash
+npm install
+npm run build:widget
+```
+
+```bash
+python -m venv myenv
+source myenv/bin/activate
+uv run uvicorn main:app --reload
+```
+
+## Usage
+
+- Head to dist/index.html
+
 ## Requirements
 
 ### 1. Embeddable Chat Widget
+
 - Chat button in bottom-right corner
 - Opens/closes chat panel
 - Self-contained component
 
 ### 2. Chat Interface
+
 - Message list (user and assistant)
 - Input box and Send button
 - Loading states
@@ -54,22 +79,24 @@ function App() {
 - Error handling
 
 ### 3. Persistent Storage
+
 - IndexDb for chat history
 - Auto-save on message changes
 - Restore on page refresh
 - Clear history option
 
 ### 4. Streaming Behavior
+
 - Word-by-word streaming via async generators
 - 50ms delay between words
 - Incremental UI updates
 - Error handling
 
 ### 5. UI Example Rendering
+
 - Renders interactive Button components from Material UI, Antd , etc
 - Lazy-loaded components
 - Example queries: "Show me button components", "Display chat bubble variations"
-
 
 ## Technologies
 
@@ -82,17 +109,16 @@ function App() {
 ## Focus Directions
 
 ### Performance & Code Splitting
+
 - Lazy loading for UI components
 - Code splitting with React.lazy()
 - Suspense boundaries
-
 
 ## Tradeoffs
 
 1. AI/LLM integration for gettin json structure for components
 2. Indexdb instead of backend sync
 3. Fixed component set for libraries
-
 
 ## Future Enhancements
 

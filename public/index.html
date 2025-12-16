@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,8 +37,6 @@
     <div>
         <button id="initBtn">Initialize Widget</button>
         <button id="destroyBtn">Destroy Widget</button>
-        <button id="toggleThemeBtn">Toggle Theme (Light/Dark)</button>
-        <button id="changePositionBtn">Change Position</button>
     </div>
 
     <!-- Load the UMD bundle -->
@@ -60,11 +57,11 @@
                     apiUrl: 'http://localhost:8000',
                     theme: 'light',
                     position: 'bottom-right',
-                    onReady: () => console.log('✅ Widget initialized!'),
-                    onError: (err) => console.error('❌ Widget error:', err)
+                    onReady: () => console.log('Widget initialized!'),
+                    onError: (err) => console.error('Widget error:', err)
                 });
             } else {
-                console.error('❌ ChatWidgetDemo not found on window object');
+                console.error('ChatWidgetDemo not found on window object');
             }
         });
 
@@ -83,21 +80,6 @@
         document.getElementById('destroyBtn').onclick = () => {
             window.ChatWidgetDemo.destroy();
             console.log('Widget destroyed');
-        };
-
-        // Toggle theme button
-        document.getElementById('toggleThemeBtn').onclick = () => {
-            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-            window.ChatWidgetDemo.update({ theme: currentTheme });
-            console.log('Theme changed to:', currentTheme);
-        };
-
-        // Change position button
-        document.getElementById('changePositionBtn').onclick = () => {
-            currentPositionIndex = (currentPositionIndex + 1) % positions.length;
-            const newPosition = positions[currentPositionIndex];
-            window.ChatWidgetDemo.update({ position: newPosition });
-            console.log('Position changed to:', newPosition);
         };
     </script>
 </body>
