@@ -35,7 +35,7 @@ class InferenceRequest(BaseModel):
     messages: List[Message]
     stream: bool
 
-open_ai_key = os.getenv('OPENAI_API_KEY', '')
+open_ai_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=open_ai_key)  # Replace with your actual OpenAI API key
 
 # System prompt for the UI Library Assistant

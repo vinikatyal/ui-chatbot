@@ -48,12 +48,10 @@ export default defineConfig({
             if (!id.includes("node_modules")) return;
 
             // React core
-            if (id.includes("/react/") || id.includes("/react-dom/"))
-              return "react";
+            if (id.includes("/react/") || id.includes("/react-dom/")) return "react";
 
             // Ant Design
-            if (id.includes("/antd/") || id.includes("@ant-design"))
-              return "antd";
+            if (id.includes("/antd/") || id.includes("@ant-design")) return "antd";
 
             // MUI
             if (id.includes("/@mui/")) return "mui";
@@ -62,12 +60,12 @@ export default defineConfig({
             if (id.includes("/@emotion/")) return "emotion";
 
             // Markdown stack
-            if (
-              id.includes("/react-markdown/") ||
-              id.includes("/remark-") ||
-              id.includes("/rehype-")
-            )
+            if (id.includes("/react-markdown/") || id.includes("/remark-") || id.includes("/rehype-"))
               return "markdown";
+
+            // Live editor tooling (often pulls a lot)
+            if (id.includes("/react-live/") || id.includes("/prism") || id.includes("/buble"))
+              return "live-editor";
 
             // IndexedDB
             if (id.includes("/idb/")) return "idb";
@@ -96,3 +94,4 @@ export default defineConfig({
     global: "globalThis",
   },
 });
+

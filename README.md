@@ -17,6 +17,7 @@ An embeddable chat widget for design systems. Users can request and preview inte
 npm install
 npm run dev
 ```
+### Create an env file in backend/.env and add your OPENAI_API_KEY
 
 ```bash
 python -m venv myenv
@@ -108,22 +109,25 @@ uv run uvicorn main:app --reload
 
 ## Focus Directions
 
+- Direction A and B
+- Working on Direction C
+
 ### Performance & Code Splitting
 
 - Lazy loading for UI components
 - Code splitting with React.lazy()
 - Suspense boundaries
+- Bundle optimizations with vite manual chunking for libraries, 
 
 ## Tradeoffs
 
 1. AI/LLM integration for gettin json structure for components
-2. Indexdb instead of backend sync
-3. Fixed component set for libraries
+2. Fixed component set for libraries
 
 ## Future Enhancements
 
-- LLM API integration (OpenAI, Anthropic)
-- More component types
+- More libraries integration
+- Read from LLM agents and web libraries
 - Backend chat history sync
 - User authentication
 - Analytics
