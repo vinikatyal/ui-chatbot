@@ -1,4 +1,4 @@
-# UI Chatbot for Component Libraries
+# Chatbot for Component Libraries
 
 An embeddable chat widget for design systems. Users can request and preview interactive UI components through chat.
 
